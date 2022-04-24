@@ -43,20 +43,34 @@ export default function UserForm() {
     }
   }
 
-  const [createUser, { loading }] = useMutation(CREATE_USER_MUTATION, {
-    variables: inputs,
+  const [createUser, { data, error, loading }] = useMutation(
+    CREATE_USER_MUTATION,
+    {
+      variables: inputs,
+    }
+  );
+
+  console.log({
+    data,
+    error,
+    loading,
   });
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input id="name" type="text" name="name" onChange={handleChange} />
-      <input
-        id="profilePic"
-        type="file"
-        name="profilePic"
-        onChange={handleChange}
-      />
-      <button type="submit">Submit</button>
-    </form>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <input id="name" type="text" name="name" onChange={handleChange} />
+        <input
+          id="profilePic"
+          type="file"
+          name="profilePic"
+          onChange={handleChange}
+        />
+        <button type="submit">Submit</button>
+      </form>
+      {error && <div>Error...</div>}
+      {loading && <div>Loading...</div>}
+      {data && <div>{data.createUser.name}</div>}
+    </div>
   );
 }

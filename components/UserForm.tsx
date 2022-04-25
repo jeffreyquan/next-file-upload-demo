@@ -1,5 +1,6 @@
 import { gql, useMutation } from "@apollo/client";
-import * as React from "react";
+import { ChangeEvent, useState } from 'react';
+
 
 export const CREATE_USER_MUTATION = gql`
   mutation CREATE_USER_MUTATION($name: String!, $profilePic: Upload) {
@@ -10,34 +11,22 @@ export const CREATE_USER_MUTATION = gql`
 `;
 
 export default function UserForm() {
-  const [inputs, setInputs] = React.useState({
+  const [inputs, setInputs] = useState({
     name: "",
     profilePic: null,
   });
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    let value: string | File;
-    const { name, type } = e.target;
-    value = e.target.value;
+  // @ts-ignore
+  function handleChange({ target: { name, type, files: [file] } }: ChangeEvent<HTMLInputElement>) {
+    if (type !== "file") return;
 
-    if (type === "file") {
-      const { files } = e.target;
-
-      if (files !== null) {
-        value = files[0];
-      }
-    }
-    console.log(inputs);
-    setInputs((prevInputs) => ({
-      ...prevInputs,
-      [name]: value,
-    }));
+    setInputs({ name, profilePic: file });
   }
 
   async function handleSubmit(e: any) {
     e.preventDefault();
     try {
-      await createUser();
+      await createUser({ variables: { ...inputs } });
     } catch (err) {
       console.log(err);
     }
@@ -45,9 +34,6 @@ export default function UserForm() {
 
   const [createUser, { data, error, loading }] = useMutation(
     CREATE_USER_MUTATION,
-    {
-      variables: inputs,
-    }
   );
 
   console.log({
